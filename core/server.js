@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const assert = require('assert').asert;
+const assert = require('chai').assert;
 const cors = require('cors');
 
 class Server {
@@ -14,8 +14,27 @@ class Server {
         });
     }
 
-    setRoutes(routes) {
+    setApis(apis) {
         const router = express.Router();
+        let routes = [];
+        let route, apiCase;
+
+        apis.forEach((api) => {
+            apiCase = api.case;
+
+            apiCase.forEach((currentCase) => {
+                                
+            });
+
+            route = {
+                method: api.method,
+                path: api.path,                
+            };
+
+            route = Object.assign({},route, api.case);
+
+            routes = routes.concat();
+        });
 
         routes.forEach((route) => {
             router[route.method](route.path, (req, res, next) => {
@@ -54,9 +73,11 @@ class Server {
         const { request, response } = route;
 
         let hasMatched = false;
-        ['query', 'params', 'headers', 'body'].forEach((key) => {
+        ['query', 'params', 'headers', 'body'].some((key) => {
+            // If any returns false, it exits the loop
             if (key in request) {
                 hasMatched = this.check(input[key], request[key]);
+                return !hasMatched;
             }
         });
 
@@ -68,16 +89,18 @@ class Server {
     }
 
     check(input, expected) {
-        // expected exists in input?
-        // try/catch expected
-        for (var k in expected) {
+        let currentExpected;
+        for (let property in expected) {
+            if(!(property in input)) return false;
+            currentExpected = expected[property];
             // Each field
-            for (var kk in expected[k]) {
+            for (let method in currentExpected) {
                 // Each rule
                 try {
-                    assert[kk](input[k], expected[k][kk]);
+                    // Good to go
+                    assert[method](input[property], currentExpected[method]);
                 } catch (e) {
-
+                    return false;
                 }
             }
         }

@@ -3,9 +3,9 @@ const cwd = process.cwd();
 
 module.exports = {
     start: (options) => {
-        const { routes, port } = options;
+        const { apis, port } = options;
 
         server.connect(port);
-        server.setRoutes(routes);
+        server.setApis(apis);
     }
 };
