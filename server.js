@@ -63,7 +63,7 @@ class Server {
                     const parts = then.body.split(':');
                     const fileName = parts.splice(1).join(':');
                     const filePath = `${monckFilesDir}/${fileName}`;
-                    body = fs.readFileSync(filePath, 'utf8');
+                    body = fs.readFileSync(filePath, 'utf8').toString();
                 }else{
                     body = then.body;
                 }
