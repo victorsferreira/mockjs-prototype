@@ -1,0 +1,14 @@
+#! /usr/local/bin/node
+
+const fs = require('fs');
+const mock = require('../index');
+const cwd = process.cwd();
+
+const monckDir = `${cwd}/monck`;
+const apisContent = fs.readFileSync(`${monckDir}/apis.json`, 'utf8');
+const apis = JSON.parse(apisContent);
+
+mock.start({
+    port: 8001,
+    apis
+});

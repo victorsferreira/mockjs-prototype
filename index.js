@@ -1,5 +1,4 @@
-const server = require('./core/server');
-const cwd = process.cwd();
+const server = require('./server');
 
 module.exports = {
     start: (options) => {
