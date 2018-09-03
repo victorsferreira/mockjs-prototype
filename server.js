@@ -2,6 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const assert = require('chai').assert;
 const cors = require('cors');
+const fs = require('fs');
+
+const cwd = process.cwd();
+const monckFilesDir = `${cwd}/monck/files`;
 
 class Server {
     constructor() {
@@ -17,7 +21,9 @@ class Server {
     setApis(apis) {
         const router = express.Router();
         apis.forEach((api) => {
-            router[api.method](api.path, (req, res, next) => {
+            const middlewares = [];
+            if(api.cors) middlewares.push(cors(api.cors));
+            router[api.method](api.path, middlewares, (req, res, next) => {
                 this.handle(api.cases, req, res, next);
             });
         });
@@ -37,11 +43,9 @@ class Server {
 
     handle(cases, req, res, next) {
         const inputNames = ['query', 'params', 'headers', 'body'];
-
         for (let caseIndex in cases) {
             const currentCase = cases[caseIndex];
             let hasMatched = false;
-
             for (let inputName in currentCase) {
                 if (inputNames.includes(inputName)) {
                     const input = req[inputName];
@@ -53,7 +57,18 @@ class Server {
 
             if (hasMatched) {
                 const { then } = currentCase;
-                res.status(then.status).set(then.headers).send(then.body);
+                let body = '';
+
+                if(then.body.indexOf('$file:') === 0){
+                    const parts = then.body.split(':');
+                    const fileName = parts.splice(1).join(':');
+                    const filePath = `${monckFilesDir}/${fileName}`;
+                    body = fs.readFileSync(filePath, 'utf8');
+                }else{
+                    body = then.body;
+                }
+                
+                res.status(then.status).set(then.headers).send(body);
                 // Print
                 return true;
             }
